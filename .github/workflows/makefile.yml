@@ -1,0 +1,32 @@
+name: work03 CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup python 3.9.16
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9.16 
+
+    - name: Install dependencies
+      run: |
+        make install
+
+    - name: Run Lint
+      run: |
+        make lint
+
+    - name: Run tests
+      run: |
+        make test
+
+    - name: Format
+      run: |
+        make format
