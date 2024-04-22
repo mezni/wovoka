@@ -1,0 +1,36 @@
+name: loader-service
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup python 3.9
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        cd work
+        make install
+
+    - name: Run Lint
+      run: |
+        cd work
+        make lint
+
+    - name: Run tests
+      run: |
+        cd work
+        make test
+
+    - name: Format
+      run: |
+        cd work
+        make format
