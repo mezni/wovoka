@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -24,13 +25,12 @@ type PortfolioInput struct {
 	Parent        string
 }
 
-func generate() []*Portfolio {
+func main() {
 	var portfolios []*Portfolio
 	portfolioInput := []PortfolioInput{
-		{"root", "default", 3000, ""},
-		{"IT", "department", 2000, "root"},
-		{"HR", "department", 500, "root"},
-		{"Sales", "department", 500, "root"},
+		{"root", "default", 2000, ""},
+		{"IT", "department", 1500, "root"},
+		{"HR", "department", 1000, "root"},
 		{"team1", "team", 1000, "IT"},
 		{"team2", "team", 500, "IT"},
 		{"phonix1", "project", 500, "IT"},
@@ -52,22 +52,8 @@ func generate() []*Portfolio {
 			}
 		}
 	}
-	return portfolios
-}
-
-func main() {
-	fmt.Println("- start")
-	portfolios := generate()
-
-	uuids := make([]*uuid.UUID, 0)
-	uuids = append(uuids, nil)
 	for _, p := range portfolios {
-		for _, v := range uuids {
-			if p.Parent == v {
-				fmt.Println(p.ID, p.Name, p.PortfolioType, p.Limit, p.Parent)
-				uuids = append(uuids, &p.ID)
-			}
-		}
+		fmt.Println(p.ID, p.Name, p.PortfolioType, p.Limit, p.Parent)
 	}
-	fmt.Println(uuids)
+
 }
