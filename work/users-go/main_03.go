@@ -89,27 +89,20 @@ type Tree struct {
 }
 
 func (t *Tree) AddNode(p *Portfolio) {
-	if t.root == nil {
-		c := make([](*Node), 0)
-		t.root = &Node{portfolio: p, children: c}
-	} else {
-		uuid := &t.root.portfolio.ID
-		if uuid.String() == p.Parent.String() {
-			c := make([](*Node), 0)
-			node := &Node{portfolio: p, children: c}
-			t.root.children = append(t.root.children, node)
-		}
+	if p.Parent == nil {
+		n := &Node{p, nil}
+		t.root = n
+	}
+	else {
+		n := &Node{p, nil}
 	}
 }
 
 func processChildren(t *Tree, pChildren []*Portfolio) {
 	for _, p := range pChildren {
-		//		fmt.Println(p)
 		t.AddNode(p)
-		//	fmt.Println(t.root)
 	}
 }
-
 func main() {
 	fmt.Println("- start")
 	portfolios := generate()
@@ -121,5 +114,5 @@ func main() {
 		processChildren(&tree, pChildren)
 		pChildren = getChildren(portfolios, pChildren)
 	}
-	fmt.Println(tree.root)
+	fmt.Println(tree.root.portfolio)
 }
