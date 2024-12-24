@@ -20,7 +20,7 @@ jobs:
 
     - name: Format code
       run: |
-        make fmt
+        make format
     - name: Test
       run: |
         make test
