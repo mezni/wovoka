@@ -8,7 +8,7 @@ import (
 
 // NetworkTechnologyRepository extends BoltRepository with specific domain logic for NetworkTechnology.
 type NetworkTechnologyRepository struct {
-	*BoltRepository // Embedding BoltRepository to reuse methods
+	*BoltRepository // Embedding BoltRepository
 }
 
 // NewNetworkTechnologyRepository creates a new instance of NetworkTechnologyRepository.
@@ -45,6 +45,7 @@ func (r *NetworkTechnologyRepository) Create(tech entities.NetworkTechnology) (e
 }
 
 // FindByName retrieves a NetworkTechnology by its name.
+// Returns the first found technology with the given name.
 func (r *NetworkTechnologyRepository) FindByName(name string) (entities.NetworkTechnology, bool, error) {
 	var tech entities.NetworkTechnology
 	found := false
@@ -54,11 +55,12 @@ func (r *NetworkTechnologyRepository) FindByName(name string) (entities.NetworkT
 
 		// Iterate through the entries in the bucket
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			err := r.Deserialize(v, &tech)
+			err := r.Deserialize(v, &tech) // Deserialization error handling
 			if err != nil {
-				// Ignore the error if deserialization fails
+				// Ignore the error if deserialization fails (we can handle invalid data later)
 				continue
 			}
+			// If the name matches, set found to true and return the technology
 			if tech.Name == name {
 				found = true
 				return nil
@@ -67,13 +69,16 @@ func (r *NetworkTechnologyRepository) FindByName(name string) (entities.NetworkT
 		return nil
 	})
 
+	// Handle the error from the View transaction block
 	if err != nil {
 		return entities.NetworkTechnology{}, false, err
 	}
 
+	// If the name is found, return the technology and true
 	if found {
 		return tech, true, nil
 	}
+	// If the name is not found, return false
 	return entities.NetworkTechnology{}, false, nil
 }
 
@@ -101,19 +106,24 @@ func (r *NetworkTechnologyRepository) FindAll() ([]entities.NetworkTechnology, e
 }
 
 // CreateMany inserts a slice of NetworkTechnologies into the database.
+// If a technology with the same name already exists, it will be skipped.
 func (r *NetworkTechnologyRepository) CreateMany(technologies []entities.NetworkTechnology) ([]entities.NetworkTechnology, error) {
 	var createdTechnologies []entities.NetworkTechnology
 	for _, tech := range technologies {
+		// Check if a technology with the same name already exists
 		existingTech, found, err := r.FindByName(tech.Name)
 		if err != nil {
 			return nil, fmt.Errorf("error checking if technology exists: %w", err)
 		}
 
+		// If technology exists, skip it
 		if found {
+			// Return the existing technology instead of inserting it again
 			createdTechnologies = append(createdTechnologies, existingTech)
 			continue
 		}
 
+		// Insert the new technology
 		itemID, err := r.BoltRepository.Create(tech.ID, tech)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create network technology: %w", err)
