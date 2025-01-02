@@ -10,20 +10,23 @@ import (
 )
 
 func main() {
-
+	// Initialize SQLite database
 	db, err := sql.Open("sqlite3", "./config.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
+	// Initialize repositories
 	networkTechnologyRepo, err := sqlitestore.NewNetworkTechnologyRepository("./config.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Initialize ApplicationService
 	configLoaderService := services.NewConfigLoaderService(*networkTechnologyRepo)
 
+	// Load data from JSON and save to database
 	if err := configLoaderService.LoadAndSaveData("data/baseline.json"); err != nil {
 		log.Fatalf("Error processing data: %v", err)
 	}
